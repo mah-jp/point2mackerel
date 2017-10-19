@@ -9,7 +9,7 @@
 |MODE文字列|カード名|備考|
 |----|----|----|
 |doutor|ドトールバリューカード (Doutor Value Card)|http://doutor.jp/|
-|tullys|タリーズカード (Tully's Card)|https://www.tullys.co.jp/cpn/tullyscard/ ※所有カードが複数枚ある場合は動作未確認|
+|tullys|タリーズカード (Tully's Card)|https://www.tullys.co.jp/cpn/tullyscard/ ※所有カードが複数枚ある場合の動作は未確認|
 
 ## USAGE
 
