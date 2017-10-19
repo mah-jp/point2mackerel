@@ -26,6 +26,7 @@
 	[ {"name": "Point.Doutor", "time": 1508429746, "value": 1869} ]
 	```
 5. そこで、たとえば次のようなcronを設定すると、毎時00分と30分に、Mackerelにポイントのデータが投稿されるようになります。
+	> # cron
 	> 0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
 
 ## AUTHOR
