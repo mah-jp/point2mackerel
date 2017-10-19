@@ -13,12 +13,20 @@
 
 ## USAGE
 
-1. ``git clone https://github.com/mah-jp/point2mackerel``
+1. ``git clone https://github.com/mah-jp/point2mackerel`` でファイルを取得します。
 2. point2mackerel.ini を編集し、各種カードのアカウント情報を記入します。
-3. テストとして ``point2mackerel.pl MODE`` (MODEにはdoutorかtullysが入ります) を実行し、カードのポイント数が標準出力されることを確認します。
-4. 引数に「-j」を指定するとJSON文字列が標準出力されます。そこで次のようなcronを設定すると、毎時00分と30分に、Mackerelにポイントのデータが投稿されるようになります。
-
-> 0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
+3. テストとして ``point2mackerel.pl MODE`` を実行し、カードのポイント数が標準出力されることを確認します。
+	```
+	$ ./point2mackerel.pl doutor
+	1869
+	```
+4. 引数に「-j」を指定するとJSON文字列が標準出力されます。
+	```
+	$ ./point2mackerel.pl -j doutor
+	[ {"name": "Point.Doutor", "time": 1508429746, "value": 1869} ]
+	```
+5. そこで、たとえば次のようなcronを設定すると、毎時00分と30分に、Mackerelにポイントのデータが投稿されるようになります。
+	> 0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
 
 ## AUTHOR
 
