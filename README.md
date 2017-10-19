@@ -18,7 +18,7 @@
 3. テストとして ``point2mackerel.pl MODE`` (MODEにはdoutorかtullysが入ります) を実行し、カードのポイント数が標準出力されることを確認します。
 4. 引数に「-j」を指定するとJSON文字列が標準出力されます。そこで次のようなcronを設定すると、毎時00分と30分に、Mackerelにポイントのデータが投稿されるようになります。
 
-    0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
+> 0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
 
 ## AUTHOR
 
