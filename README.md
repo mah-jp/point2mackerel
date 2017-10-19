@@ -10,6 +10,7 @@
 |----|----|----|
 |doutor|ドトールバリューカード (Doutor Value Card)|http://doutor.jp/|
 |tullys|タリーズカード (Tully's Card)|https://www.tullys.co.jp/cpn/tullyscard/ ※所有カードが複数枚ある場合の動作は未確認|
+|rakuten|楽天ポイントカード (Rakuten Point Card)|https://pointcard.rakuten.co.jp/ ※総保有ポイントのみ対応|
 
 ## USAGE
 

@@ -15,7 +15,7 @@ use URI::Escape;
 
 my %opt;
 Getopt::Std::getopts('i:j', \%opt);
-my %modes = ( 'doutor' => 1, 'tullys' => 1 );
+my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1 );
 my $mode = shift(@ARGV) || die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 my $file_ini = $opt{'i'} || 'point2mackerel.ini';
 my $config = Config::Tiny->new;
@@ -40,6 +40,8 @@ if ($mode eq 'doutor') {
 	$json_value = &GET_VALUE_DOUTOR($card_url_1, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'tullys') {
 	$json_value = &GET_VALUE_TULLYS($card_url_1, $card_url_2, $card_charset, $card_id, $card_password);
+} elsif ($mode eq 'rakuten') {
+	$json_value = &GET_VALUE_RAKUTEN($card_url_1, $card_charset, $card_id, $card_password);
 }
 
 if (defined($opt{'j'})) {
@@ -88,6 +90,24 @@ sub GET_VALUE_TULLYS {
 	if (!($@)) {
 		$value = $html->getElementsByName('form1')->subTree()->getElementsByClassName('contentListBalance')->innerText();
 		$value = &EXTRACT_NUMBER($value);
+	} else {
+		die('[ERROR] %s' . "\n", $@);
+	}
+	return($value);
+}
+
+# Ver.20171020
+sub GET_VALUE_RAKUTEN {
+	my ($card_url, $card_charset, $card_id, $card_password) = @_;
+	my $postdata = sprintf(
+		'service_id=13&return_url=/&u=%s&p=%s',
+		URI::Escape::uri_escape($card_id), URI::Escape::uri_escape($card_password));
+	my $response = Encode::decode($card_charset, `curl -s -b -c -L -X POST --data '$postdata' "$card_url"`);
+	my $html;
+	my $value = 'undefined';
+	eval { $html = HTML::TagParser->new($response); };
+	if (!($@)) {
+		$value = $html->getElementsByClassName('point-total')->subTree()->getElementsByTagName('dd')->innerText;
 	} else {
 		die('[ERROR] %s' . "\n", $@);
 	}
