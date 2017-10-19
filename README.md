@@ -15,13 +15,13 @@
 ## USAGE
 
 1. ``git clone https://github.com/mah-jp/point2mackerel`` でファイルを取得します。
-2. point2mackerel.ini を編集し、各種カードのアカウント情報を記入します。
-3. テストとして ``point2mackerel.pl MODE`` を実行し、カードのポイント数が標準出力されることを確認します。
+2. point2mackerel.ini を編集し、必要な分のカードのアカウント情報を記入します。(未記入のカードがあっても下記のMODEで指定しなければ問題ありません)
+3. テストとして ``point2mackerel.pl MODE`` を実行し、指定したカードのポイント数が標準出力できていることを確認します。
 	```
 	$ ./point2mackerel.pl doutor
 	1869
 	```
-4. 引数に「-j」を指定するとJSON文字列が標準出力されます。
+4. 引数に「-j」を指定すると標準出力がJSON文字列の形式に切り替わります。
 	```
 	$ ./point2mackerel.pl -j doutor
 	[ {"name": "Point.Doutor", "time": 1508429746, "value": 1869} ]
