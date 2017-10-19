@@ -1,10 +1,10 @@
-# point2mackerel.pl - プリペイドカードの残高・ポイント数をMackerelに投稿するためのPerlスクリプト
+# point2mackerel.pl - プリペイドカードなどの残高・ポイント数をMackerelに投稿するためのPerlスクリプト
 
 ## What is this?
 
-このPerlスクリプトは、プリペイドカードのサイトをクロールして残高・ポイント数を取得し、サーバ管理・監視ツールの[Mackerel](https://mackerel.io/ja/)に投稿するためのJSON文字列を標準出力します。
+このPerlスクリプトは、プリペイドカードなどのサイトをクロールして残高・ポイント数を取得し、サーバ管理・監視ツールの[Mackerel](https://mackerel.io/ja/)に投稿するためのJSON文字列を標準出力します。
 
-対応しているプリペイドカードは、現在、次の通りです。
+対応しているカードは、現在、次の通りです。
 
 |MODE文字列|カード名|備考|
 |----|----|----|
@@ -15,12 +15,10 @@
 
 1. ``git clone https://github.com/mah-jp/point2mackerel``
 2. point2mackerel.ini を編集し、各種カードのアカウント情報を記入します。
-3. テストとして ``point2mackerel.pl doutor`` または ``point2mackerel.pl tullys`` を実行して、カードのポイント数が標準出力されることを確認します。
-4. 引数に「-j」を指定するとJSON文字列を標準出力します。そこでたとえば次のようなcronを設定すると、毎時00分と30分に、Mackerelにデータが投稿されるようになります。
+3. テストとして ``point2mackerel.pl MODE`` (MODEにはdoutorかtullysが入ります) を実行し、カードのポイント数が標準出力されることを確認します。
+4. 引数に「-j」を指定するとJSON文字列が標準出力されます。そこで次のようなcronを設定すると、毎時00分と30分に、Mackerelにポイントのデータが投稿されるようになります。
 
-```
-0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
-```
+    0,30 * * * * curl https://api.mackerelio.com/api/v0/services/+++++YOUR-SERVICE-NAME+++++/tsdb -H 'X-Api-Key: +++++YOUR-API-KEY+++++' -H 'Content-Type: application/json' -X POST -d "$(/path/to/point2mackerel.pl -i /path/to/point2mackerel.ini -j +++++MODE+++++)"
 
 ## AUTHOR
 
