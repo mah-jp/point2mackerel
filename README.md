@@ -17,7 +17,7 @@
 
 1. ``git clone https://github.com/mah-jp/point2mackerel`` でファイルを取得します。
 2. point2mackerel.ini を編集し、必要な分のカードおよびサイトのアカウント情報を記入します。下記の　``point2mackerel.pl MODE``　で指定しないMODEのアカウント情報は未記入でOKです。
-	- 「MODE = saison」の場合: 動作環境にSelenium (Chrome) をセットアップすることが別途必要です。本Perlスクリプト上で[Selenium::Remote::Driverモジュール](http://search.cpan.org/~gempesaw/Selenium-Remote-Driver/lib/Selenium/Remote/Driver.pm)を用いているためです。
+	- 「MODE = saison」の場合: 動作環境にSelenium (Chrome) をセットアップすることが別途必要です。本Perlスクリプト上は[Selenium::Remote::Driverモジュール](http://search.cpan.org/~gempesaw/Selenium-Remote-Driver/lib/Selenium/Remote/Driver.pm)を用いています。
 3. テストとして ``point2mackerel.pl MODE`` を実行し、指定したカード等のポイント数が標準出力できていることを確認します。
 	```
 	$ ./point2mackerel.pl doutor
