@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20171020) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20171101) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] MODE
 
 use strict;
@@ -15,7 +15,7 @@ use URI::Escape;
 
 my %opt;
 Getopt::Std::getopts('i:j', \%opt);
-my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1 );
+my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1 );
 my $mode = shift(@ARGV) || die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 my $file_ini = $opt{'i'} || 'point2mackerel.ini';
 my $config = Config::Tiny->new;
@@ -42,6 +42,9 @@ if ($mode eq 'doutor') {
 	$json_value = &GET_VALUE_TULLYS($card_url_1, $card_url_2, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'rakuten') {
 	$json_value = &GET_VALUE_RAKUTEN($card_url_1, $card_charset, $card_id, $card_password);
+} elsif ($mode eq 'saison') {
+	use Selenium::Remote::Driver;
+	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password);
 }
 
 if (defined($opt{'j'})) {
@@ -69,7 +72,7 @@ sub GET_VALUE_DOUTOR {
 			$point = &EXTRACT_NUMBER($elem[3]->innerText());
 		}
 	} else {
-		die('[ERROR] %s' . "\n", $@);
+		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
 	return($value + $point);
 }
@@ -91,7 +94,7 @@ sub GET_VALUE_TULLYS {
 		$value = $html->getElementsByName('form1')->subTree()->getElementsByClassName('contentListBalance')->innerText();
 		$value = &EXTRACT_NUMBER($value);
 	} else {
-		die('[ERROR] %s' . "\n", $@);
+		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
 	return($value);
 }
@@ -109,8 +112,33 @@ sub GET_VALUE_RAKUTEN {
 	if (!($@)) {
 		$value = $html->getElementsByClassName('point-total')->subTree()->getElementsByTagName('dd')->innerText;
 	} else {
-		die('[ERROR] %s' . "\n", $@);
+		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
+	return($value);
+}
+
+# Ver.20171101
+sub GET_VALUE_SAISON {
+	my ($card_url, $card_charset, $card_id, $card_password) = @_;
+	my(@elem);
+	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome');
+	$driver->get($card_url);
+	@elem = $driver->find_elements("//input[\@name='aa_accd']");
+		$elem[1]->send_keys($card_id); # second element
+	@elem = $driver->find_elements("//input[\@name='lg_pw']");
+		$elem[1]->send_keys($card_password); # second element
+	$driver->find_element("//input[\@name='SUB1']")->click;
+	my $html;
+	my $value = 'undefined';
+	my $response = Encode::encode($card_charset, $driver->get_page_source()); # re-encode to "$card_charset" for HTML::TagParser
+	$driver->quit();
+	eval { $html = HTML::TagParser->new($response); };
+	if (!($@)) {
+		$value = $html->getElementsByClassName('dataitem04')->innerText; # first element
+	} else {
+		die(sprintf('[ERROR] %s' . "\n", $@));
+	}
+	$value = &EXTRACT_NUMBER($value);
 	return($value);
 }
 
