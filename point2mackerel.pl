@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20171101) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20171103) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] MODE
 
 use strict;
@@ -134,7 +134,8 @@ sub GET_VALUE_SAISON {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		$value = $html->getElementsByClassName('dataitem04')->innerText; # first element
+		@elem = $html->getElementsByClassName('dataitem05 titlehend')->innerText;
+		$value = $elem[2]; # third element
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
