@@ -134,8 +134,8 @@ sub GET_VALUE_SAISON {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		@elem = $html->getElementsByClassName('dataitem05 titlehend')->innerText;
-		$value = $elem[2]; # third element
+		@elem = $html->getElementsByClassName('dataitem05 titlehend');
+		$value = $elem[2]->innerText; # third element
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
