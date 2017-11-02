@@ -47,7 +47,7 @@ if ($mode eq 'doutor') {
 	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'crowdbank') {
 	use Selenium::Remote::Driver;
-	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_url_2, $card_charset, $card_id, $card_password);
+	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password);
 }
 
 if (defined($opt{'j'})) {
@@ -151,7 +151,7 @@ sub GET_VALUE_SAISON {
 
 # Ver.20171103
 sub GET_VALUE_CROWDBANK {
-	my ($card_url_1, $card_url_2, $card_charset, $card_id, $card_password) = @_;
+	my ($card_url_1, $card_charset, $card_id, $card_password) = @_;
 	# use Selenium::Chrome; my $driver = Selenium::Chrome->new; # for local test
 	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
 	$driver->get($card_url_1);
