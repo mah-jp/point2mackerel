@@ -15,7 +15,7 @@ use URI::Escape;
 
 my %opt;
 Getopt::Std::getopts('i:j', \%opt);
-my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1 );
+my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1, 'crowdbank' => 1 );
 my $mode = shift(@ARGV) || die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 my $file_ini = $opt{'i'} || 'point2mackerel.ini';
 my $config = Config::Tiny->new;
@@ -45,6 +45,9 @@ if ($mode eq 'doutor') {
 } elsif ($mode eq 'saison') {
 	use Selenium::Remote::Driver;
 	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password);
+} elsif ($mode eq 'crowdbank') {
+	use Selenium::Remote::Driver;
+	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_url_2, $card_charset, $card_id, $card_password);
 }
 
 if (defined($opt{'j'})) {
@@ -121,21 +124,50 @@ sub GET_VALUE_RAKUTEN {
 sub GET_VALUE_SAISON {
 	my ($card_url, $card_charset, $card_id, $card_password) = @_;
 	my(@elem);
-	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome');
+	# use Selenium::Chrome; my $driver = Selenium::Chrome->new; # for local test
+	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
 	$driver->get($card_url);
 	@elem = $driver->find_elements("//input[\@name='aa_accd']");
 		$elem[1]->send_keys($card_id); # second element
 	@elem = $driver->find_elements("//input[\@name='lg_pw']");
 		$elem[1]->send_keys($card_password); # second element
-	$driver->find_element("//input[\@name='SUB1']")->click;
+	my $elem = $driver->find_element("//input[\@name='SUB1']");
+	$driver->move_to(element => $elem);
+	$elem->click;
 	my $html;
 	my $value = 'undefined';
-	my $response = Encode::encode($card_charset, $driver->get_page_source()); # re-encode to "$card_charset" for HTML::TagParser
+	my $response = Encode::encode($card_charset, $driver->get_page_source());
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
 		@elem = $html->getElementsByClassName('dataitem05 titlehend');
 		$value = $elem[2]->innerText; # third element
+	} else {
+		die(sprintf('[ERROR] %s' . "\n", $@));
+	}
+	$value = &EXTRACT_NUMBER($value);
+	return($value);
+}
+
+# Ver.20171103
+sub GET_VALUE_CROWDBANK {
+	my ($card_url_1, $card_url_2, $card_charset, $card_id, $card_password) = @_;
+	# use Selenium::Chrome; my $driver = Selenium::Chrome->new; # for local test
+	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
+	$driver->get($card_url_1);
+	$driver->find_element("//input[\@name='user_id']")->send_keys($card_id);
+	$driver->find_element("//input[\@name='password']")->send_keys($card_password);
+	my $elem = $driver->find_element("//button[\@name='submit']");
+	$driver->move_to(element => $elem);
+	$elem->click;
+	$driver->pause(5000);
+	my $html;
+	my $value = 'undefined';
+	my $response = Encode::encode($card_charset, $driver->get_page_source());
+	$driver->quit();
+	eval { $html = HTML::TagParser->new($response); };
+	if (!($@)) {
+		$value = $html->getElementById('total-amount')->innerText;
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
