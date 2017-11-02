@@ -9,10 +9,10 @@
 |MODE文字列|カード名・サイト名|備考|
 |----|----|----|
 |doutor|[ドトールバリューカード (Doutor Value Card)](http://doutor.jp/)||
-|tullys|[タリーズカード (Tully's Card)](https://www.tullys.co.jp/cpn/tullyscard/)|※所有カードが複数枚ある場合の動作は未確認|
-|rakuten|[楽天ポイントカード (Rakuten Point Card)](https://pointcard.rakuten.co.jp/)|※「総保有ポイント」のみ対応|
-|saison|[セゾン投信 (Saison Asset Management)](https://www.saison-am.co.jp/)|※ファンドの「評価額合計」のみ対応|
-|crowdbank|[日本クラウド証券 (Crowd Bank, Crowd Securities Japan)](https://crowdbank.jp/)|※投資状況の「総資金」のみ対応|
+|tullys|[タリーズカード (Tully's Card)](https://www.tullys.co.jp/cpn/tullyscard/)|所有カードが複数枚ある場合の動作は未確認|
+|rakuten|[楽天ポイントカード (Rakuten Point Card)](https://pointcard.rakuten.co.jp/)|「総保有ポイント」のみ対応|
+|saison|[セゾン投信 (Saison Asset Management)](https://www.saison-am.co.jp/)|ファンドの「評価額合計」のみ対応|
+|crowdbank|[日本クラウド証券 (Crowd Bank, Crowd Securities Japan)](https://crowdbank.jp/)|投資状況の「総資金」のみ対応|
 
 ## USAGE
 
