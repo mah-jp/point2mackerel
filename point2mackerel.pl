@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20171110-develop) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20171110) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
