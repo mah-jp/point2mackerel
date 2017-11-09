@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 # point2mackerel.pl (Ver.20171103) by Masahiko OHKUBO
-# usage: point2mackerel.pl [-i INIFILE] [-j] MODE
+# usage: point2mackerel.pl [-i INIFILE] [-j] [-t] MODE
 
 use strict;
 use warnings;
@@ -14,10 +14,11 @@ use HTML::TagParser;
 use URI::Escape;
 
 my %opt;
-Getopt::Std::getopts('i:j', \%opt);
+Getopt::Std::getopts('i:jt', \%opt);
 my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1, 'crowdbank' => 1 );
 my $mode = shift(@ARGV) || die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 my $file_ini = $opt{'i'} || 'point2mackerel.ini';
+my $flag_localtest = defined($opt{'t'}) || 0;
 my $config = Config::Tiny->new;
 $config = Config::Tiny->read($file_ini) || die('[ERROR] Can not read INI file: ' . $file_ini);
 
@@ -43,11 +44,9 @@ if ($mode eq 'doutor') {
 } elsif ($mode eq 'rakuten') {
 	$json_value = &GET_VALUE_RAKUTEN($card_url_1, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'saison') {
-	use Selenium::Remote::Driver;
-	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password);
+	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest);
 } elsif ($mode eq 'crowdbank') {
-	use Selenium::Remote::Driver;
-	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password);
+	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest);
 }
 
 if (defined($opt{'j'})) {
@@ -122,10 +121,9 @@ sub GET_VALUE_RAKUTEN {
 
 # Ver.20171101
 sub GET_VALUE_SAISON {
-	my ($card_url, $card_charset, $card_id, $card_password) = @_;
+	my ($card_url, $card_charset, $card_id, $card_password, $flag_localtest) = @_;
 	my(@elem);
-	# use Selenium::Chrome; my $driver = Selenium::Chrome->new; # for local test
-	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
+	my $driver = &SELENIUM($flag_localtest);
 	$driver->get($card_url);
 	@elem = $driver->find_elements("//input[\@name='aa_accd']");
 		$elem[1]->send_keys($card_id); # second element
@@ -151,9 +149,8 @@ sub GET_VALUE_SAISON {
 
 # Ver.20171103
 sub GET_VALUE_CROWDBANK {
-	my ($card_url_1, $card_charset, $card_id, $card_password) = @_;
-	# use Selenium::Chrome; my $driver = Selenium::Chrome->new; # for local test
-	my $driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
+	my ($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest) = @_;
+	my $driver = &SELENIUM($flag_localtest);
 	$driver->get($card_url_1);
 	$driver->find_element("//input[\@name='user_id']")->send_keys($card_id);
 	$driver->find_element("//input[\@name='password']")->send_keys($card_password);
@@ -188,6 +185,19 @@ sub MAKE_JSON {
 	my $time = time;
 	my $json = sprintf('[ {"name": "%s", "time": %d, "value": %d} ]', $key, $time, $value);
 	return($json);
+}
+
+sub SELENIUM {
+	my($flag_localtest) = @_;
+	my($driver);
+	if ($flag_localtest == 1) {
+		use Selenium::Chrome;
+		$driver = Selenium::Chrome->new; # for local test
+	} else {
+		use Selenium::Remote::Driver;
+		$driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
+	}
+	return($driver);
 }
 
 sub DEBUG {
