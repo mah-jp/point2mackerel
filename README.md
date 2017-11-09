@@ -1,6 +1,6 @@
 # point2mackerel.pl - プリペイドカードなどの残高・ポイント数をMackerelに投稿するためのPerlスクリプト
 
-## What is this??
+## What is this?
 
 このPerlスクリプトは、プリペイドカードのウェブサイトや投信サイトなどをクロールして残高・ポイント数を取得し、サーバ管理・監視ツールの[Mackerel](https://mackerel.io/ja/)に投稿するためのJSON文字列を標準出力します。
 
@@ -13,6 +13,15 @@
 |rakuten|[楽天ポイントカード (Rakuten Point Card)](https://pointcard.rakuten.co.jp/)|「総保有ポイント」のみ対応|
 |saison|[セゾン投信 (Saison Asset Management)](https://www.saison-am.co.jp/)|ファンドの「評価額合計」or「評価損益合計」に対応|
 |crowdbank|[日本クラウド証券 (Crowd Bank, Crowd Securities Japan)](https://crowdbank.jp/)|投資状況の「総資金」のみ対応|
+
+### MODEに対するオプション
+
+セゾン投信 (MODE=saison) の場合、INIファイル内での「option = ???」指定、またはコマンドラインオプションでの「-o ???」指定をすることで、出力する値を選択できます。
+
+|オプション|出力される値|
+|----|----|
+|(なし)|ファンドの「評価額合計」|
+|profit|ファンドの「評価損益合計」|
 
 ## USAGE
 
