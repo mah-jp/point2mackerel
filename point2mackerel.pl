@@ -22,7 +22,7 @@ my $flag_localtest = defined($opt{'t'}) || 0;
 my $config = Config::Tiny->new;
 $config = Config::Tiny->read($file_ini) || die('[ERROR] Can not read INI file: ' . $file_ini);
 
-my($card_url_1, $card_url_2, $card_charset, $card_id, $card_password, $card_pointperyen);
+my($card_url_1, $card_url_2, $card_charset, $card_id, $card_password, $card_pointperyen, $key);
 my($json_key, $json_value);
 if (defined($modes{$mode})) {
 	$card_url_1 = $config->{$mode}->{'url'} || $config->{$mode}->{'url_1'};
@@ -31,7 +31,8 @@ if (defined($modes{$mode})) {
 	$card_id = $config->{$mode}->{'id'};
 	$card_password = $config->{$mode}->{'password'};
 	$card_pointperyen = $config->{$mode}->{'rate_pointperyen'} || 1;
-	$json_key = $config->{$mode}->{'json_key'}
+	$json_key = $config->{$mode}->{'json_key'};
+	$key = $config->{$mode}->{'key'};
 } else {
 	die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 }
@@ -44,7 +45,7 @@ if ($mode eq 'doutor') {
 } elsif ($mode eq 'rakuten') {
 	$json_value = &GET_VALUE_RAKUTEN($card_url_1, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'saison') {
-	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest);
+	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $key, $flag_localtest);
 } elsif ($mode eq 'crowdbank') {
 	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest);
 }
@@ -119,9 +120,9 @@ sub GET_VALUE_RAKUTEN {
 	return($value);
 }
 
-# Ver.20171101
+# Ver.20171109
 sub GET_VALUE_SAISON {
-	my ($card_url, $card_charset, $card_id, $card_password, $flag_localtest) = @_;
+	my ($card_url, $card_charset, $card_id, $card_password, $key, $flag_localtest) = @_;
 	my(@elem);
 	my $driver = &SELENIUM($flag_localtest);
 	$driver->get($card_url);
@@ -138,8 +139,13 @@ sub GET_VALUE_SAISON {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		@elem = $html->getElementsByClassName('dataitem05 titlehend');
-		$value = $elem[2]->innerText; # third element
+		if ($key eq 'profit') {
+			@elem = $html->getElementsByClassName('dataitem04');
+			$value = $elem[0]->innerText; # first element
+		} else {
+			@elem = $html->getElementsByClassName('dataitem05 titlehend');
+			$value = $elem[2]->innerText; # third element
+		}
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
