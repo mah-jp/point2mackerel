@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20171109) by Masahiko OHKUBO
-# usage: point2mackerel.pl [-i INIFILE] [-j] [-t] MODE
+# point2mackerel.pl (Ver.20171110-develop) by Masahiko OHKUBO
+# usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
 use warnings;
@@ -14,7 +14,7 @@ use HTML::TagParser;
 use URI::Escape;
 
 my %opt;
-Getopt::Std::getopts('i:jt', \%opt);
+Getopt::Std::getopts('i:jto:', \%opt);
 my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1, 'crowdbank' => 1 );
 my $mode = shift(@ARGV) || die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 my $file_ini = $opt{'i'} || 'point2mackerel.ini';
@@ -22,7 +22,7 @@ my $flag_localtest = defined($opt{'t'}) || 0;
 my $config = Config::Tiny->new;
 $config = Config::Tiny->read($file_ini) || die('[ERROR] Can not read INI file: ' . $file_ini);
 
-my($card_url_1, $card_url_2, $card_charset, $card_id, $card_password, $card_pointperyen, $key);
+my($card_url_1, $card_url_2, $card_charset, $card_id, $card_password, $card_pointperyen, $option);
 my($json_key, $json_value);
 if (defined($modes{$mode})) {
 	$card_url_1 = $config->{$mode}->{'url'} || $config->{$mode}->{'url_1'};
@@ -32,7 +32,7 @@ if (defined($modes{$mode})) {
 	$card_password = $config->{$mode}->{'password'};
 	$card_pointperyen = $config->{$mode}->{'rate_pointperyen'} || 1;
 	$json_key = $config->{$mode}->{'json_key'};
-	$key = $config->{$mode}->{'key'};
+	$option = $opt{'o'} || $config->{$mode}->{'option'} || '';
 } else {
 	die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 }
@@ -45,7 +45,7 @@ if ($mode eq 'doutor') {
 } elsif ($mode eq 'rakuten') {
 	$json_value = &GET_VALUE_RAKUTEN($card_url_1, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'saison') {
-	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $key, $flag_localtest);
+	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $option, $flag_localtest);
 } elsif ($mode eq 'crowdbank') {
 	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest);
 }
@@ -120,9 +120,9 @@ sub GET_VALUE_RAKUTEN {
 	return($value);
 }
 
-# Ver.20171109
+# Ver.20171110
 sub GET_VALUE_SAISON {
-	my ($card_url, $card_charset, $card_id, $card_password, $key, $flag_localtest) = @_;
+	my ($card_url, $card_charset, $card_id, $card_password, $option, $flag_localtest) = @_;
 	my(@elem);
 	my $driver = &SELENIUM($flag_localtest);
 	$driver->get($card_url);
@@ -139,7 +139,7 @@ sub GET_VALUE_SAISON {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		if ($key eq 'profit') {
+		if ($option eq 'profit') {
 			@elem = $html->getElementsByClassName('dataitem04');
 			$value = $elem[0]->innerText; # first element
 		} else {
