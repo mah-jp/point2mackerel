@@ -1,6 +1,6 @@
 # point2mackerel.pl - プリペイドカードなどの残高・ポイント数をMackerelに投稿するためのPerlスクリプト
 
-## What is this?
+## What is this??
 
 このPerlスクリプトは、プリペイドカードのウェブサイトや投信サイトなどをクロールして残高・ポイント数を取得し、サーバ管理・監視ツールの[Mackerel](https://mackerel.io/ja/)に投稿するためのJSON文字列を標準出力します。
 
