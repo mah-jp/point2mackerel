@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20171110) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20180902) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
@@ -153,7 +153,7 @@ sub GET_VALUE_SAISON {
 	return($value);
 }
 
-# Ver.20171103
+# Ver.20180902
 sub GET_VALUE_CROWDBANK {
 	my ($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest) = @_;
 	my $driver = &SELENIUM($flag_localtest);
@@ -170,7 +170,7 @@ sub GET_VALUE_CROWDBANK {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		$value = $html->getElementById('total-amount')->innerText;
+		$value = $html->getElementById('total-amount')->subTree()->getElementsByClassName('total')->innerText;
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
