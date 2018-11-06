@@ -49,10 +49,10 @@
 
 ## AUTHOR
 
-大久保 正彦 (Masahiko OHKUBO) <[mah@remoteroom.jp](mailto:mah@remoteroom.jp)> <[https://twitter.com/mah_jp](https://twitter.com/mah_jp)>
+大久保 正彦 (Masahiko OHKUBO) <[masahiko.ohkubo@gmail.com](mailto:masahiko.ohkubo@gmail.com)> <[https://twitter.com/mah_jp](https://twitter.com/mah_jp)>
 
 ## COPYRIGHT and LICENSE
 
-This software is copyright (c) 2017 by Masahiko OHKUBO.
+This software is copyright (c) 2018 by Masahiko OHKUBO.
 
 This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
