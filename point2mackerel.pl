@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20180902) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20181106) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
 use warnings;
-use lib '/home/mah/perl5/lib/perl5';
+use lib $ENV{'HOME'} . '/perl5/lib/perl5';
 use Config::Tiny;
 use Encode;
 use File::Temp;
@@ -153,7 +153,7 @@ sub GET_VALUE_SAISON {
 	return($value);
 }
 
-# Ver.20180902
+# Ver.20181106
 sub GET_VALUE_CROWDBANK {
 	my ($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest) = @_;
 	my $driver = &SELENIUM($flag_localtest);
@@ -170,7 +170,7 @@ sub GET_VALUE_CROWDBANK {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		$value = $html->getElementById('total-amount')->subTree()->getElementsByClassName('total')->innerText;
+		$value = $html->getElementsByClassName('money__value')->innerText;
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
