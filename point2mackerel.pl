@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20171110) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20190529) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
@@ -57,14 +57,14 @@ if (defined($opt{'j'})) {
 }
 exit;
 
-# Ver.20171017
+# Ver.20190529
 sub GET_VALUE_DOUTOR {
 	my ($card_url, $card_charset, $card_id, $card_password) = @_;
 	my (@card_id) = (substr($card_id, -16, 4), substr($card_id, -12, 4), substr($card_id, -8, 4), substr($card_id, -4, 4));
 	my $postdata = sprintf(
 		'hid_login=ON&CUSTNUM01=%04d&CUSTNUM02=%04d&CUSTNUM03=%04d&CUSTNUM04=%04d&PASSWORD=%s',
 		@card_id, URI::Escape::uri_escape($card_password));
-	my $response = Encode::decode($card_charset, `curl -s -b -c -L -X POST --data '$postdata' "$card_url"`);
+	my $response = Encode::encode('UTF-8', Encode::decode($card_charset, `curl -s -b -c -L -X POST --data '$postdata' "$card_url"`));
 	my $html;
 	my ($value, $point) = ('undefined', 'undefined');
 	eval { $html = HTML::TagParser->new($response); };
