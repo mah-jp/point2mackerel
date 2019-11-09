@@ -13,6 +13,7 @@
 |rakuten|[楽天ポイントカード (Rakuten Point Card)](https://pointcard.rakuten.co.jp/)|「総保有ポイント」のみ対応|
 |saison|[セゾン投信 (Saison Asset Management)](https://www.saison-am.co.jp/)|ファンドの「評価額合計」or「評価損益合計」に対応|
 |crowdbank|[日本クラウド証券 (Crowd Bank, Crowd Securities Japan)](https://crowdbank.jp/)|投資状況の「総資金」のみ対応|
+|lendex|[LENDEX](https://lendex.jp/)|全期間の運用実績の「収益分配額」のみ対応|
 
 ### MODEに対するオプション
 
@@ -53,6 +54,6 @@
 
 ## COPYRIGHT and LICENSE
 
-This software is copyright (c) 2018 by Masahiko OHKUBO.
+This software is copyright (c) 2019 by Masahiko OHKUBO.
 
 This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.

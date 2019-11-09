@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20190708) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20191104) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
@@ -15,14 +15,14 @@ use URI::Escape;
 
 my %opt;
 Getopt::Std::getopts('i:jto:', \%opt);
-my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1, 'crowdbank' => 1 );
+my %modes = ( 'doutor' => 1, 'tullys' => 1, 'rakuten' => 1, 'saison' => 1, 'crowdbank' => 1, 'lendex' => 1 );
 my $mode = shift(@ARGV) || die('[ERROR] Please select mode: { ' . join(' | ', keys(%modes)) . ' }');
 my $file_ini = $opt{'i'} || 'point2mackerel.ini';
 my $flag_localtest = defined($opt{'t'}) || 0;
 my $config = Config::Tiny->new;
 $config = Config::Tiny->read($file_ini) || die('[ERROR] Can not read INI file: ' . $file_ini);
 
-my($card_url_1, $card_url_2, $card_charset, $card_id, $card_password, $card_pointperyen, $option);
+my($card_url_1, $card_url_2, $card_charset, $card_id, $card_password, $card_pointperyen, $card_wait, $option);
 my($json_key, $json_value);
 if (defined($modes{$mode})) {
 	$card_url_1 = $config->{$mode}->{'url'} || $config->{$mode}->{'url_1'};
@@ -31,6 +31,7 @@ if (defined($modes{$mode})) {
 	$card_id = $config->{$mode}->{'id'};
 	$card_password = $config->{$mode}->{'password'};
 	$card_pointperyen = $config->{$mode}->{'rate_pointperyen'} || 1;
+	$card_wait = $config->{$mode}->{'wait'} || 0;
 	$json_key = $config->{$mode}->{'json_key'};
 	$option = $opt{'o'} || $config->{$mode}->{'option'} || '';
 } else {
@@ -45,9 +46,11 @@ if ($mode eq 'doutor') {
 } elsif ($mode eq 'rakuten') {
 	$json_value = &GET_VALUE_RAKUTEN($card_url_1, $card_charset, $card_id, $card_password);
 } elsif ($mode eq 'saison') {
-	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $option, $flag_localtest);
+	$json_value = &GET_VALUE_SAISON($card_url_1, $card_charset, $card_id, $card_password, $card_wait, $option, $flag_localtest);
 } elsif ($mode eq 'crowdbank') {
-	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest);
+	$json_value = &GET_VALUE_CROWDBANK($card_url_1, $card_charset, $card_id, $card_password, $card_wait, $flag_localtest);
+} elsif ($mode eq 'lendex') {
+	$json_value = &GET_VALUE_LENDEX($card_url_1, $card_charset, $card_id, $card_password, $card_wait, $flag_localtest);
 }
 
 if (defined($opt{'j'})) {
@@ -121,19 +124,20 @@ sub GET_VALUE_RAKUTEN {
 	return($value);
 }
 
-# Ver.20171110
+# Ver.20191030
 sub GET_VALUE_SAISON {
-	my ($card_url, $card_charset, $card_id, $card_password, $option, $flag_localtest) = @_;
+	my ($card_url, $card_charset, $card_id, $card_password, $card_wait, $option, $flag_localtest) = @_;
 	my(@elem);
 	my $driver = &SELENIUM($flag_localtest);
 	$driver->get($card_url);
 	@elem = $driver->find_elements("//input[\@name='aa_accd']");
-		$elem[1]->send_keys($card_id); # second element
+		$elem[1]->send_keys($card_id); # 2nd element
 	@elem = $driver->find_elements("//input[\@name='lg_pw']");
-		$elem[1]->send_keys($card_password); # second element
+		$elem[1]->send_keys($card_password); # 2nd element
 	my $elem = $driver->find_element("//input[\@name='SUB1']");
 	$driver->move_to(element => $elem);
 	$elem->click;
+	$driver->pause($card_wait);
 	my $html;
 	my $value = 'undefined';
 	my $response = Encode::encode($card_charset, $driver->get_page_source());
@@ -142,10 +146,10 @@ sub GET_VALUE_SAISON {
 	if (!($@)) {
 		if ($option eq 'profit') {
 			@elem = $html->getElementsByClassName('dataitem04');
-			$value = $elem[0]->innerText; # first element
+			$value = $elem[0]->innerText; # 1st element
 		} else {
 			@elem = $html->getElementsByClassName('dataitem05 titlehend');
-			$value = $elem[2]->innerText; # third element
+			$value = $elem[2]->innerText; # 3rd element
 		}
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
@@ -154,9 +158,10 @@ sub GET_VALUE_SAISON {
 	return($value);
 }
 
-# Ver.20181106
+# Ver.20191031
 sub GET_VALUE_CROWDBANK {
-	my ($card_url_1, $card_charset, $card_id, $card_password, $flag_localtest) = @_;
+	my ($card_url_1, $card_charset, $card_id, $card_password, $card_wait, $flag_localtest) = @_;
+	my(@elem);
 	my $driver = &SELENIUM($flag_localtest);
 	$driver->get($card_url_1);
 	$driver->find_element("//input[\@name='user_id']")->send_keys($card_id);
@@ -164,14 +169,43 @@ sub GET_VALUE_CROWDBANK {
 	my $elem = $driver->find_element("//button[\@name='submit']");
 	$driver->move_to(element => $elem);
 	$elem->click;
-	$driver->pause(5000);
+	$driver->pause($card_wait);
 	my $html;
 	my $value = 'undefined';
 	my $response = Encode::encode($card_charset, $driver->get_page_source());
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		$value = $html->getElementsByClassName('money__value')->innerText;
+		@elem = $html->getElementsByClassName('money__value');
+		$value = $elem[5]->innerText; # 5th element
+	} else {
+		die(sprintf('[ERROR] %s' . "\n", $@));
+	}
+	$value = &EXTRACT_NUMBER($value);
+	return($value);
+}
+
+# Ver.20191104
+sub GET_VALUE_LENDEX {
+	my ($card_url_1, $card_charset, $card_id, $card_password, $card_wait, $flag_localtest) = @_;
+	my(@elem);
+	my $driver = &SELENIUM($flag_localtest);
+	$driver->get($card_url_1);
+	$driver->find_element("//input[\@name='username']")->send_keys($card_id);
+	$driver->find_element("//input[\@name='password']")->send_keys($card_password);
+	my $elem = $driver->find_element("//input[\@class='col-xs-offset-2 btn btn-success']");
+	$driver->move_to(element => $elem);
+	$elem->click;
+	$driver->pause($card_wait);
+	my $html;
+	my $value = 'undefined';
+	my $response = Encode::encode($card_charset, $driver->get_page_source());
+	$driver->quit();
+	eval { $html = HTML::TagParser->new($response); };
+	if (!($@)) {
+		@elem = $html->getElementsByClassName('table table-striped table-bordered');
+		@elem = $elem[2]->subTree()->getElementsByTagName('td');
+		$value = $elem[2]->innerText; # 1st element
 	} else {
 		die(sprintf('[ERROR] %s' . "\n", $@));
 	}
@@ -202,7 +236,10 @@ sub SELENIUM {
 		$driver = Selenium::Chrome->new; # for local test
 	} else {
 		use Selenium::Remote::Driver;
-		$driver = Selenium::Remote::Driver->new('browser_name' => 'chrome'); # for headless
+		$driver = Selenium::Remote::Driver->new( # for headless
+			'browser_name' => 'chrome',
+			'extra_capabilities' => { 'goog:chromeOptions' => { 'args' => [ 'window-size=1024,768' ] }}
+		);
 	}
 	return($driver);
 }
