@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# point2mackerel.pl (Ver.20191104) by Masahiko OHKUBO
+# point2mackerel.pl (Ver.20210420) by Masahiko OHKUBO
 # usage: point2mackerel.pl [-i INIFILE] [-j] [-t] [-o OPTION] MODE
 
 use strict;
@@ -185,7 +185,7 @@ sub GET_VALUE_CROWDBANK {
 	return($value);
 }
 
-# Ver.20191104
+# Ver.20210420
 sub GET_VALUE_LENDEX {
 	my ($card_url_1, $card_charset, $card_id, $card_password, $card_wait, $flag_localtest) = @_;
 	my(@elem);
@@ -203,7 +203,7 @@ sub GET_VALUE_LENDEX {
 	$driver->quit();
 	eval { $html = HTML::TagParser->new($response); };
 	if (!($@)) {
-		@elem = $html->getElementsByClassName('table table-striped table-bordered');
+		@elem = $html->getElementsByClassName('table table-striped');
 		@elem = $elem[2]->subTree()->getElementsByTagName('td');
 		$value = $elem[2]->innerText; # 1st element
 	} else {
